@@ -257,20 +257,29 @@ public class HMM {
 	 */	
 	
 	protected Vector<Point2D> resample(Vector<PointData> pts, int deltaTms) {
-		Vector<Point2D> res = new Vector<Point2D>();
 		long firstTimeStamp = pts.get(0).getTimeStamp();
 		long lastTimeStamp = pts.get(pts.size() - 1).getTimeStamp();
-		long old_time = lastTimeStamp - firstTimeStamp;
-		long old_deltaTms = old_time / pts.size();
-		System.out.println(lastTimeStamp + " - " + firstTimeStamp + " = " + (lastTimeStamp - firstTimeStamp));
-		System.out.println(old_time + " / " + pts.size() + " = " + old_deltaTms);
-		System.out.println(deltaTms);
-	
-		long time;
-		for (time = 0; time < old_time; time += deltaTms) {
-			double a = (time / deltaTms) ;
-			System.out.println(time + " " + a);
+		long time = lastTimeStamp - firstTimeStamp;
+		
+		long nbPointRes = time / deltaTms;
+		Vector<Point2D> res = new Vector<Point2D>((int) nbPointRes);
+		
+		double fact = (double)pts.size() / (double)(nbPointRes -1);
+		
+		for(int i = 0; i < nbPointRes - 1; i++) {
+			double id = ((double) i) * fact;
+			
+			int a = (int) id;
+			int b = a + 1;
+			double t = id - Math.floor(id);
+			
+			// a * (1-t) + b * t
+			Point2D p = pts.get(a).getPoint().multiply(1d - t).add(pts.get(b).getPoint().multiply(t)); 
+			
+			res.add(p);
 		}
+		
+		res.add(pts.get(pts.size() - 1).getPoint());
 		
 		return res;
 	}

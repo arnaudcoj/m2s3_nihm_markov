@@ -216,7 +216,7 @@ public class HMM {
 			
 			double theta = ab.angle(hor);
 			
-			features.add(Math.floor(theta));
+			features.add(Math.abs(theta) /10);
 		}
 		
 		return features;

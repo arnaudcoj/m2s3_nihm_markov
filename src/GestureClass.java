@@ -64,7 +64,7 @@ public class GestureClass {
 	
 	public Hmm<ObservationInteger> trainHMM(ArrayList<ArrayList<ObservationInteger>> 
 	obsVectors){
-		//System.out.println(gestureClassName);
+		System.out.println(gestureClassName);
 	        int numberOfHiddenStates = 2;
 	        Hmm<ObservationInteger> trainedHmm;
 	        do{
@@ -119,13 +119,15 @@ public class GestureClass {
 	}		
 	
 	public double computeScore(ArrayList<Double> featuresRawPoints) {
-		double res = 0;
-		
+		double res = 0;		
 		ArrayList<ObservationInteger> obs = new ArrayList<ObservationInteger>();
 		for (Double i : featuresRawPoints) {
 			obs.add(new ObservationInteger(i.intValue()));
 		}
-				
+		
+		ForwardBackwardCalculator calc = new ForwardBackwardCalculator(obs, hmm);
+		res = calc.probability();
+		
 		return res;
 	}	
 	

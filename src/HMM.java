@@ -275,13 +275,16 @@ public class HMM {
 		long time = lastTimeStamp - firstTimeStamp;
 		
 		long nbPointRes = time / deltaTms;
+		System.out.println(pts.size() + " " + nbPointRes);
+		
 		Vector<Point2D> res = new Vector<Point2D>((int) nbPointRes);
 		
-		double fact = (double)pts.size() / (double)(nbPointRes -1);
+		double fact = (double)(pts.size()-1) / (double)(nbPointRes -1);
 		
 		for(int i = 0; i < nbPointRes - 1; i++) {
 			double id = ((double) i) * fact;
-			
+
+			System.out.println(id);
 			int a = (int) id;
 			int b = a + 1;
 			double t = id - Math.floor(id);

@@ -205,8 +205,21 @@ public class HMM {
 	 */
 	
 	public ArrayList<Double> computeFeatures(Vector<Point2D> points) {
+		ArrayList<Double> features = new ArrayList<Double>();
 		
-		return null;
+		for(int i = 1; i < points.size(); i++) {
+			int a = i - 1;
+			int b = i;
+			
+			Point2D ab = points.get(b).subtract(points.get(a));
+			Point2D hor = new Point2D(1,0);
+			
+			double theta = ab.angle(hor);
+			
+			features.add(Math.floor(theta));
+		}
+		
+		return features;
 	}
 	
 

@@ -16,10 +16,17 @@ import java.util.Vector;
 import javafx.geometry.Point2D;
 
 public class HMM {
+	
+	//Q7-----------------------------------
+	private boolean distanceFilter = false;
+	
+	
 	private Vector<PointData> rawSrcPoints;
 	private double score = 0;
 	private String nameTemplateFound = "none";
 	private Vector<Point2D> resampledRawPoints;
+	
+	private Vector<Double> templateDistances;
 	
     /**
      * List all the gestures classes (name of the templates)
@@ -44,6 +51,7 @@ public class HMM {
 		classMap = new HashMap<String, GestureClass>();
 		templateManager = new TemplateManager("resources/gestures.xml");
 		gesturesProbabilities = new Vector<GestureProbability>();
+		templateDistances = new Vector<Double>();
 		Training();
 	}
 	
@@ -79,6 +87,19 @@ public class HMM {
 			GestureClass gestureClass = new GestureClass(classExamples, className);
 			classMap.put(className, gestureClass);	
 		}
+
+		//q7
+		for(int c = 0; c < gestureClasses.size(); c++) {
+			double meanDistance = 0d;
+			for(i = 0; i < classMap.get(gestureClasses.get(c)).examples.size(); i++) {
+				Template t = classMap.get(gestureClasses.get(c)).examples.get(i);
+				meanDistance += distance(t.getPoints().get(0).getPoint(), t.getPoints().get(t.getPoints().size() -1).getPoint());
+			}
+			meanDistance /= classMap.get(gestureClasses.get(c)).examples.size();
+			templateDistances.add(meanDistance);
+		}
+		//--
+
 		
 		//gestureClasses.remove("arrow");
 		//gestureClasses.remove("leftCurlyBrace");
@@ -114,21 +135,32 @@ public class HMM {
 		
 		if (rawSrcPoints.size() < 4) return;
 		ArrayList<Double> featuresRawPoints = computeFeatures(resample(rawSrcPoints,resamplingPeriod));
+		
+		//q7
+		double distancePoints = distance(rawSrcPoints.get(0).getPoint(), rawSrcPoints.get(rawSrcPoints.size() -1).getPoint());
+		//--
+		
 		score = Double.MIN_VALUE;
 		nameTemplateFound = "none";
 		for (int c=0; c<gestureClasses.size();c++) {
 			double scoreClass = classMap.get(gestureClasses.get(c)).computeScore(featuresRawPoints);
 			//System.out.println(gestureClasses.get(c) + " " + scoreClass);
 			gesturesProbabilities.add(new GestureProbability(gestureClasses.get(c), scoreClass));
-			if (scoreClass > score) {
-				score = scoreClass;
-				nameTemplateFound = gestureClasses.get(c);
+
+			//q7
+			//if distancefilter is true we check the distance and the score, otherwise we just check the score
+			if(!distanceFilter || (templateDistances.get(c) * 0.5 < distancePoints  && distancePoints < templateDistances.get(c) * 2.)) { 
+			//--
+				if (scoreClass > score) {
+					score = scoreClass;
+					nameTemplateFound = gestureClasses.get(c);
+				}
 			}
 		}
 		Collections.sort(gesturesProbabilities);
 		
 		
-		//System.out.println("Classe = " + nameTemplateFound + " " + score);
+		System.out.println("Classe = " + nameTemplateFound + " " + score);
 		
 		
 	}
